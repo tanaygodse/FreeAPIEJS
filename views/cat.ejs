@@ -5,13 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cat Facts</title>
   <link rel="stylesheet" href="/styles.css">
+  <style>
+   
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Cat Facts</h1>
-    <p><%= fact %></p>
-    <a href="/">Go Back</a>
+<body>  
+  <%- include('../views/navbar'); %>  
+  <div class="container1">
+    <h1>100 Random Cat Facts</h1>
+    <p>Here are 100 random facts about cats. Enjoy!</p>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search...">
+      <select id="records-per-page">
+        <option value="5">5 per page</option>
+        <option value="10">10 per page</option>
+        <option value="15">15 per page</option>
+      </select>
+    </div>
+    <table id="fact-table">
+      <thead>
+        <tr>
+          <th>Fact</th>
+        </tr>
+      </thead>
+      <tbody id="fact-table-body">
+        <!-- Table rows will be dynamically added here -->
+      </tbody>
+    </table>
+    <div id="pagination-container">
+      <button id="prev-button">Previous</button>
+      <span id="current-page">Page 1</span>
+      <button id="next-button">Next</button>
+    </div>
   </div>
+
+  <script>
+    console.log("Hello from cat.js");
+    const factsEncoded = []; // Get encoded facts from server
+    <% fact.forEach(function(fact) { %>
+      factsEncoded.push("<%= fact %>");
+    <% }); %>
+    console.log(factsEncoded);
+    let itemsPerPage = 5;
+    let currentPage = 1;
+    let searchTerm = '';
+
+    // Function to decode HTML entities
+    function decodeHtmlEntities(str) {
+      return str.replace(/&#(\d+);/g, function(match, dec) {
+        return String.fromCharCode(dec);
+      });
+    }
+
+    function renderTable(page) {
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const tableBody = document.getElementById('fact-table-body');
+      tableBody.innerHTML = '';
+      let filteredFacts = factsEncoded.filter(fact => fact.toLowerCase().includes(searchTerm));
+      for (let i = startIndex; i < endIndex && i < filteredFacts.length; i++) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.textContent = decodeHtmlEntities(filteredFacts[i]);
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+      }
+      // Update current page counter
+      document.getElementById('current-page').textContent = `Page ${currentPage}`;
+      // Update pagination buttons visibility
+      updatePaginationButtons(filteredFacts.length);
+    }
+
+    function updatePaginationButtons(totalFilteredFacts) {
+      const prevButton = document.getElementById('prev-button');
+      const nextButton = document.getElementById('next-button');
+      const totalPages = Math.ceil(totalFilteredFacts / itemsPerPage);
+      
+      prevButton.style.display = currentPage > 1 ? 'inline-block' : 'none';
+      nextButton.style.display = currentPage < totalPages ? 'inline-block' : 'none';
+    }
+
+    function goToPreviousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable(currentPage);
+      }
+    }
+
+    function goToNextPage() {
+      const totalFilteredFacts = factsEncoded.filter(fact => fact.toLowerCase().includes(searchTerm)).length;
+      const totalPages = Math.ceil(totalFilteredFacts / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable(currentPage);
+      }
+    }
+
+    // Event listener for search input
+    document.getElementById('search-input').addEventListener('input', function() {
+      searchTerm = this.value.toLowerCase();
+      currentPage = 1; // Reset current page when searching
+      renderTable(currentPage);
+    });
+
+    // Event listener for records per page dropdown
+    document.getElementById('records-per-page').addEventListener('change', function() {
+      itemsPerPage = parseInt(this.value);
+      currentPage = 1; // Reset current page when changing records per page
+      renderTable(currentPage);
+    });
+
+    // Event listeners for pagination buttons
+    document.getElementById('prev-button').addEventListener('click', goToPreviousPage);
+    document.getElementById('next-button').addEventListener('click', goToNextPage);
+
+    // Initial render
+    renderTable(currentPage);
+  </script>
 </body>
 </html>
 

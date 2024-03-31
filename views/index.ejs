@@ -3,14 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cat Facts</title>
+  <title>Random Cat Fact</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Cat Facts</h1>
-    <p><%= fact %></p>
-    <a href="/fact">Get Another Fact</a>
+  <%- include('../views/navbar'); %>
+  <div style="display: flex;" class="container2">
+    <img src="/homeimage.png" alt="Random Cat Image">
+    <div class="card">
+      <h2>Random Cat Fact</h2>
+      <p><%= fact %></p>
+      <a href="/fact">See more Random Cat Facts!</a>
+    </div>
   </div>
 </body>
 </html>
